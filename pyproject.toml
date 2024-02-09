@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "oskat"
+version = "0.1.0"
+description = "Open-Source Kamera-Arts Tools"
+authors = ["Kevin Lao <kevinlao.819@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+opencv-python = "^4.9.0.80"
+click = "^8.1.7"
+
+[tool.poetry.scripts]
+oskat = "oskat.cli:cli"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
