@@ -10,17 +10,10 @@ A set of command line tools for batch processing photos without opening up a pho
 ### 1. Installation
 The simplest way to install `oskat` as a globally-available command-line tool is to use `pipx`. Find the guide [here](https://pipx.pypa.io/stable/installation/).
 
-Once you have `pipx` installed, simply run either of the following commands from your terminal:  
-```
-pipx install oskat
-```
-
-*or, alternatively:*
+Once you have `pipx` installed, simply run the following command from your terminal:  
 ```
 pipx install git+https://github.com/kl819/oskat.git
 ```  
-
-The second command installs directly from the GitHub repository and is recommended.
 
 Once `pipx` is done installing, you should receive a message like this:
   ```installed package oskat 0.1.0, installed using Python 3.9.6
