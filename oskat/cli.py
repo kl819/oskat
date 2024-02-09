@@ -11,6 +11,7 @@ TIFF_EXTS = ['.tif', '.tiff']
 default_tag = '_oskat'
 default_export_folder_name = ('out')
 default_ext = ('.png')
+default_border_colour_hex = '#FFFFFF'
 pure_white = [255, 255, 255]
 
 # === FUNCTIONALS & HELPERS === #
@@ -137,29 +138,12 @@ def mat_to_ratio(img, ratio_w, ratio_h, stride_percent=0.1, mat_color = [255, 25
     return cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT, None, mat_color)
 
 
-# === COMMANDS === #
-
-@click.group()
-def cli():
-    pass
-
-#@click.command()
-@cli.command()
-@click.option('--width', '-w', default=1, type=float, required=False, help='output ratio width (e.g. 4 in 4:5)')
-@click.option('--height', '-h', default=1, type=float, required=False, help='output ratio height (e.g. 5 in 4:5)')
-@click.option('--stride', '-s', default=0.1, type=float, required=False, help='minimum relative size of border (total; e.g. 0.1 is 10%, 5% on each side)')
-@click.option('--colour', '--color', '-c', default='#FFFFFF', type=str, required=False, help='border colour hex code (6-digit)')
-@click.option('--path', '--folder', '--directory', '--dir', '-d', default=os.getcwd(), type=str, required=False, help='target folder or file')
-@click.option('--recursive', '--include-subfolders', '--subfolders', '-r', default=False, type=bool, required=False, help='target subfolders?')
-@click.option('--preview', '-p', default=False, type=bool, required=False, help='preview all images?')
-@click.option('--out', '-o', default=None, type=str, required=False, help='output directory')
-@click.option('--tag', '--out-tag', '-t', default='_matted', type=str, required=False, help='output tag')
-def varimat(width : float, height : float, stride : float, colour : str, path : str, recursive : bool, preview : bool, out : str, tag : str):
+def varimat_undeco(width : float = 1, height : float = 1, stride : float = 0.1, colour : str = '#FFFFFF', path : str = os.getcwd(), recursive : bool = False, preview : bool = False, out : str = None, tag : str = default_tag):
     # check input
     col = hex_to_rgb(colour)
     if col is None: col = pure_white
-    if not os.path.exists(path): path = os.getcwd()
-    if out is None: out = os.path.join(path, default_export_folder_name)
+    if path is None or (not os.path.exists(path)): path = os.getcwd()
+    if out is None or (not os.path.exists(out)): out = os.path.join(path, default_export_folder_name)
     readables = get_readable(path, recursive)
     for r in readables:
         img_path = r[0]
@@ -181,15 +165,36 @@ def varimat(width : float, height : float, stride : float, colour : str, path : 
         export_cv2(img_matted, img_name, tag, img_ext, out)
     return True
 
+# === COMMANDS === #
+
+@click.group()
+def cli():
+    pass
+
+
 @cli.command()
-@click.option('--path', '--folder', '--directory', '--dir', '-d', default=os.getcwd(), type=str, required=False, help='border colour hex code (6-digit)')
-@click.option('--preview', '-p', default=False, type=bool, required=False, help='preview all images?')
-@click.option('--out', '-o', default=os.path.join(os.getcwd(), default_export_folder_name), type=str, required=False, help='output directory')
-def instamat(path = None, preview = False, out = None):
-    print('running instamat')
-    if path is None: path = os.getcwd()
-    if out is None: path = (os.getcwd(), default_export_folder_name)
-    varimat(4, 5, 0.1, pure_white, path, preview, out)
+@click.option('--width', '-w', default=1, type=float, required=False, help='output ratio width (e.g. 4 in 4:5)')
+@click.option('--height', '-h', default=1, type=float, required=False, help='output ratio height (e.g. 5 in 4:5)')
+@click.option('--stride', '-s', default=0.1, type=float, required=False, help='minimum relative size of border (total; e.g. 0.1 is 10%, 5% on each side)')
+@click.option('--colour', '--color', '-c', default='#FFFFFF', type=str, required=False, help='border colour hex code (6-digit)')
+@click.option('--path', '--folder', '--directory', '--dir', '-d', default=os.getcwd(), type=str, required=False, help='target folder or file')
+@click.option('--recursive', '--include-subfolders', '--subfolders', '-r', default=False, type=bool, required=False, help='target subfolders?')
+@click.option('--preview', '-p', is_flag = True, default=False, flag_value=True, type=bool, required=False, help='preview all images?')
+@click.option('--out', '-o', default=None, type=str, required=False, help='output directory')
+@click.option('--tag', '--out-tag', '-t', default='_matted', type=str, required=False, help='output tag')
+def varimat(width : float, height : float, stride : float, colour : str, path : str, recursive : bool, preview : bool, out : str, tag : str):
+    varimat_undeco(width, height, stride, colour, path, recursive, preview, out, tag)
+
+
+@cli.command()
+@click.option('--path', '--folder', '--directory', '--dir', '-d', default=os.getcwd(), type=str, required=False, help='target folder or file')
+@click.option('--recursive', '--include-subfolders', '--subfolders', '-r', default=False, type=bool, required=False, help='target subfolders?')
+@click.option('--preview', '-p', is_flag = True, default=False, flag_value=True, type=bool, required=False, help='preview all images?')
+@click.option('--out', '-o', default=None, type=str, required=False, help='output directory')
+@click.option('--tag', '--out-tag', '-t', default='_matted', type=str, required=False, help='output tag')
+def instamat(path : str, recursive : bool, preview : bool, out : str, tag : str):
+    varimat_undeco(width=4, height=5, stride=0.1, colour=default_border_colour_hex, path=path, recursive=recursive, preview=preview, out=out, tag=tag)
+
 
 if __name__ == "__main__":
     cli()
