@@ -1,6 +1,7 @@
 import cv2
 import os
 import click
+import time
 
 # data
 JPEG_EXTS = ['.jpg', '.jpeg', '.jpe', '.jif', '.jfif', '.jfi']
@@ -145,25 +146,27 @@ def varimat_undeco(width : float = 1, height : float = 1, stride : float = 0.1, 
     if path is None or (not os.path.exists(path)): path = os.getcwd()
     if out is None or (not os.path.exists(out)): out = os.path.join(path, default_export_folder_name)
     readables = get_readable(path, recursive)
+    i = 0
     for r in readables:
         img_path = r[0]
         img_name, img_ext = os.path.splitext(r[1])
         img = cv2.imread(img_path, cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
         if (img is None):
-            return False
+            click.echo(f'could not read file "{r[1]}"!')
             # error
-        
-        # process, preview
-        img_matted = mat_to_ratio(img, width, height, stride, col)
-        img_rename = img_name+tag
-        if preview:
-            cv2.imshow(img_rename, img_matted)
-            cv2.waitKey(0)
-            cv2.destroyWindow(img_rename)
-        
-        # export
-        export_cv2(img_matted, img_name, tag, img_ext, out)
-    return True
+        else:
+            i+=1
+            # process, preview
+            img_matted = mat_to_ratio(img, width, height, stride, col)
+            img_rename = img_name+tag
+            if preview:
+                cv2.imshow(img_rename, img_matted)
+                cv2.waitKey(0)
+                cv2.destroyWindow(img_rename)
+            
+            # export
+            export_cv2(img_matted, img_name, tag, img_ext, out)
+    return i
 
 # === COMMANDS === #
 
@@ -180,20 +183,28 @@ def cli():
 @click.option('--path', '--folder', '--directory', '--dir', '-d', default=os.getcwd(), type=str, required=False, help='target folder or file')
 @click.option('--recursive', '--include-subfolders', '--subfolders', '-r', default=False, type=bool, required=False, help='target subfolders?')
 @click.option('--preview', '-p', is_flag = True, default=False, flag_value=True, type=bool, required=False, help='preview all images?')
-@click.option('--out', '-o', default=None, type=str, required=False, help='output directory')
+@click.option('--out', '-o', default='varimat', type=str, required=False, help='output directory')
 @click.option('--tag', '--out-tag', '-t', default='_matted', type=str, required=False, help='output tag')
 def varimat(width : float, height : float, stride : float, colour : str, path : str, recursive : bool, preview : bool, out : str, tag : str):
-    varimat_undeco(width, height, stride, colour, path, recursive, preview, out, tag)
+    t_s = time.time()
+    i = varimat_undeco(width, height, stride, colour, path, recursive, preview, out, tag)
+    t_e = time.time()
+    d_t = t_e - t_s
+    click.echo(f'Matted {i} images in {round(d_t, 1)}s!')
 
 
 @cli.command()
 @click.option('--path', '--folder', '--directory', '--dir', '-d', default=os.getcwd(), type=str, required=False, help='target folder or file')
 @click.option('--recursive', '--include-subfolders', '--subfolders', '-r', default=False, type=bool, required=False, help='target subfolders?')
 @click.option('--preview', '-p', is_flag = True, default=False, flag_value=True, type=bool, required=False, help='preview all images?')
-@click.option('--out', '-o', default=None, type=str, required=False, help='output directory')
+@click.option('--out', '-o', default='instamat', type=str, required=False, help='output directory')
 @click.option('--tag', '--out-tag', '-t', default='_matted', type=str, required=False, help='output tag')
 def instamat(path : str, recursive : bool, preview : bool, out : str, tag : str):
-    varimat_undeco(width=4, height=5, stride=0.1, colour=default_border_colour_hex, path=path, recursive=recursive, preview=preview, out=out, tag=tag)
+    t_s = time.time()
+    i = varimat_undeco(width=4, height=5, stride=0.1, colour=default_border_colour_hex, path=path, recursive=recursive, preview=preview, out=out, tag=tag)
+    t_e = time.time()
+    d_t = t_e - t_s
+    click.echo(f'matted {i} images in {round(d_t, 1)}s!')
 
 
 if __name__ == "__main__":
