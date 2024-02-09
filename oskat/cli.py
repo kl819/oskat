@@ -8,14 +8,8 @@ PNG_EXTS = ['.png']
 TIFF_EXTS = ['.tif', '.tiff']
 
 # vars
-target_dir = ('./oskat')
-# recursive_find = False
 default_tag = '_oskat'
-# mat_tag = '_matted'
-#preview_output = True
-#export_inplace = False
 default_export_folder_name = ('out')
-#change_ext = False
 default_ext = ('.png')
 pure_white = [255, 255, 255]
 
@@ -161,12 +155,10 @@ def cli():
 @click.option('--out', '-o', default=os.path.join(os.getcwd(), default_export_folder_name), type=str, required=False, help='output directory')
 @click.option('--tag', '--out-tag', '-t', default='_matted', type=str, required=False, help='output tag')
 def varimat(width : float, height : float, stride : float, colour : str, path : str, recursive : bool, preview : bool, out : str, tag : str):
-
     # check input
     col = hex_to_rgb(colour)
     if col is None: col = pure_white
     if not os.path.exists(path): path = os.getcwd()
-    print('running varimat in', path)
     readables = get_readable(path, recursive)
     for r in readables:
         img_path = r[0]
@@ -175,6 +167,7 @@ def varimat(width : float, height : float, stride : float, colour : str, path : 
         if (img is None):
             return False
             # error
+        
         # process, preview
         img_matted = mat_to_ratio(img, width, height, stride, col)
         img_rename = img_name+tag
@@ -196,77 +189,6 @@ def instamat(path = None, preview = False, out = None):
     if path is None: path = os.getcwd()
     if out is None: path = (os.getcwd(), default_export_folder_name)
     varimat(4, 5, 0.1, pure_white, path, preview, out)
-
-
-# @click.command()
-# @click.argument("instamat", required=True)
-def cliold():
-    pass
-    # imgs = []
-    # fns = []
-    # if (not recursive_find):
-    #     fns = os.listdir(target_dir) # file names
-    #     # don't need to filter out directories, we use cv2.haveImageReader instead
-    #     # which also filters out non-readable files
-    # else:
-    #     for r, _, fs in os.walk(target_dir):
-    #         for f in fs:
-    #             print('found:',f)
-    #             fns.append(os.path.join(r, f))
-
-    # for fn in fns:
-    #     img_path = os.path.join(target_dir, fn) if not recursive_find else fn # recursive returns path, non-recursive just the file name
-    #     print('found file at:', img_path)
-    #     if(cv2.haveImageReader(img_path)):
-    #         # TODO: support alpha channel, 16-bit (IMREAD_UNCHANGED)?
-    #         img_name, img_ext = os.path.splitext(fn)
-    #         img = cv2.imread(img_path, cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
-    #         if (img is None):
-    #             pass
-    #             # error
-    #         else:
-    #             # process, preview
-    #             img_matted = mat_to_ratio(img, 4, 5)
-    #             img_rename = img_name+mat_tag
-    #             if preview_output:
-    #                 cv2.imshow(img_rename, img_matted)
-    #                 cv2.waitKey(0)
-    #                 cv2.destroyWindow(img_rename)
-                
-    #             # export
-    #             export_path = target_dir if export_inplace else os.path.join(target_dir, default_export_folder_name)
-    #             if not export_inplace and not os.path.exists(export_path): os.mkdir(os.path.join(target_dir, default_export_folder_name))
-
-    #             ext_new = default_ext if change_ext else img_ext
-    #             fn_new = img_rename + ext_new
-
-    #             ext_new_lower = ext_new.lower()
-    #             # different flags to maximize quality
-    #             if ext_new_lower in PNG_EXTS:
-    #                 # write as PNG
-    #                 cv2.imwrite(
-    #                     os.path.join(export_path, fn_new),
-    #                     img_matted,
-    #                     [cv2.IMWRITE_PNG_COMPRESSION, 0]
-    #                     )
-    #             elif ext_new_lower in JPEG_EXTS:
-    #                 # write as JPEG
-    #                 cv2.imwrite(
-    #                     os.path.join(export_path, fn_new),
-    #                     img_matted,
-    #                     [cv2.IMWRITE_JPEG_QUALITY, 100]#, cv2.IMWRITE_JPEG_SAMPLING_FACTOR_444, 1]
-    #                     )
-    #             elif ext_new_lower in TIFF_EXTS:
-    #                 # write as TIFF
-    #                 cv2.imwrite(
-    #                     os.path.join(export_path, fn_new),
-    #                     img_matted,
-    #                     [cv2.IMWRITE_TIFF_COMPRESSION, 1]
-    #                     )
-    #             else:
-    #                 cv2.imwrite(
-    #                     os.path.join(export_path, fn_new),
-    #                     img_matted)
 
 if __name__ == "__main__":
     cli()
