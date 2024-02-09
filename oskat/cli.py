@@ -152,13 +152,14 @@ def cli():
 @click.option('--path', '--folder', '--directory', '--dir', '-d', default=os.getcwd(), type=str, required=False, help='target folder or file')
 @click.option('--recursive', '--include-subfolders', '--subfolders', '-r', default=False, type=bool, required=False, help='target subfolders?')
 @click.option('--preview', '-p', default=False, type=bool, required=False, help='preview all images?')
-@click.option('--out', '-o', default=os.path.join(os.getcwd(), default_export_folder_name), type=str, required=False, help='output directory')
+@click.option('--out', '-o', default=None, type=str, required=False, help='output directory')
 @click.option('--tag', '--out-tag', '-t', default='_matted', type=str, required=False, help='output tag')
 def varimat(width : float, height : float, stride : float, colour : str, path : str, recursive : bool, preview : bool, out : str, tag : str):
     # check input
     col = hex_to_rgb(colour)
     if col is None: col = pure_white
     if not os.path.exists(path): path = os.getcwd()
+    if out is None: out = os.path.join(path, default_export_folder_name)
     readables = get_readable(path, recursive)
     for r in readables:
         img_path = r[0]
